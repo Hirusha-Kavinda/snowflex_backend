@@ -1,7 +1,6 @@
 package com.snowflex.snowflack.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,7 +16,7 @@ import java.util.Set;
 @Table(name="orders")
 @Getter
 @Setter
-public class Orders {
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,11 +44,27 @@ public class Orders {
     private Date lastUpdated;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "order")
-    private Set <OrderItem> orderItems = new HashSet<>();
+    private Set<OrderItem> orderItems = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "shipping_address_id" , referencedColumnName = "id")
+    private Address shippingAddress;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "billing_address_id" , referencedColumnName = "id")
+    private Address billingAddress;
 
     public void add(OrderItem item){
         if(item != null){
-
+           if(orderItems == null){
+               orderItems = new HashSet<>();
+           }
+           orderItems.add(item);
+           item.setOrder(this);
         }
     }
 
